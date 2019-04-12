@@ -5,6 +5,7 @@ find_package(catkin REQUIRED COMPONENTS
   trajectory_msgs
   mav_msgs
   tf
+  geometry_msgs
 )
 
 include_directories(${Eigen_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS})
@@ -20,3 +21,9 @@ target_link_libraries(exploration
   ${catkin_LIBRARIES}
 )
 add_dependencies(exploration ${catkin_EXPORTED_TARGETS})
+
+add_executable(target_test src/target_test.cpp)
+target_link_libraries(target_test
+  ${catkin_LIBRARIES}
+)
+add_dependencies(target_test ${catkin_EXPORTED_TARGETS})

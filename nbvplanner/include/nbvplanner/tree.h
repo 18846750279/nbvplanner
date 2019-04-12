@@ -25,6 +25,8 @@
 #include <multiagent_collision_check/Segment.h>
 #include <nbvplanner/mesh_structure.h>
 
+#define SQ(x) ((x)*(x))
+
 namespace nbvInspection {
 
 struct Params
@@ -100,6 +102,9 @@ class TreeBase
   stateVec exact_root_;
   std::vector<std::vector<Eigen::Vector3d>*> segments_;
   std::vector<std::string> agentNames_;
+  geometry_msgs::Pose target_point_;
+  geometry_msgs::Pose current_point_;
+  bool path_found_;
  public:
   TreeBase();
   TreeBase(mesh::StlMesh * mesh, volumetric_mapping::OctomapManager * manager);
@@ -121,6 +126,10 @@ class TreeBase
   int getCounter();
   bool gainFound();
   void insertPointcloudWithTf(const sensor_msgs::PointCloud2::ConstPtr& pointcloud);
+  void gettarget(const geometry_msgs::Pose& target);
+  void getcurrent(const nav_msgs::Odometry& current);
+  bool pathFound();
+  bool goal_reached();
 };
 }
 

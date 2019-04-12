@@ -53,6 +53,7 @@ class nbvPlanner
   ros::Subscriber pointcloud_sub_;
   ros::Subscriber pointcloud_sub_cam_up_;
   ros::Subscriber pointcloud_sub_cam_down_;
+  ros::Subscriber rrt_target_;
 
   Params params_;
   mesh::StlMesh * mesh_;
@@ -74,6 +75,7 @@ class nbvPlanner
   void insertPointcloudWithTfCamUp(const sensor_msgs::PointCloud2::ConstPtr& pointcloud);
   void insertPointcloudWithTfCamDown(const sensor_msgs::PointCloud2::ConstPtr& pointcloud);
   void evasionCallback(const multiagent_collision_check::Segment& segmentMsg);
+  void target_pointCallback(const geometry_msgs::Pose& target_msg);
 };
 }
 

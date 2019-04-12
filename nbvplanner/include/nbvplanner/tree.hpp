@@ -44,6 +44,13 @@ nbvInspection::TreeBase<stateVec>::TreeBase()
   bestNode_ = NULL;
   counter_ = 0;
   rootNode_ = NULL;
+  path_found_ = false;
+  target_point_.position.x = 0;
+  target_point_.position.y = 0;
+  target_point_.position.z = 0;
+  current_point_.position.x = 0;
+  current_point_.position.x = 0;
+  current_point_.position.x = 0;
 }
 
 template<typename stateVec>
@@ -127,4 +134,32 @@ void nbvInspection::TreeBase<stateVec>::evade(const multiagent_collision_check::
   }
 }
 
+template<typename stateVec>
+void nbvInspection::TreeBase<stateVec>::gettarget(const geometry_msgs::Pose& target)
+{
+  target_point_ = target;
+}
+
+template<typename stateVec>
+void nbvInspection::TreeBase<stateVec>::getcurrent(const nav_msgs::Odometry& current)
+{
+  current_point_.position.x = current.pose.pose.position.x;
+  current_point_.position.y = current.pose.pose.position.y;
+  current_point_.position.z = current.pose.pose.position.z;
+}
+
+template<typename stateVec>
+bool nbvInspection::TreeBase<stateVec>::pathFound()
+{
+  return ( path_found_ == true );
+}
+
+template<typename stateVec>
+bool nbvInspection::TreeBase<stateVec>::goal_reached()
+{
+  double distance = sqrt( SQ(target_point_.position.x - current_point_.position.x) +
+                          SQ(target_point_.position.y - current_point_.position.y)+
+                          SQ(target_point_.position.z - current_point_.position.z));
+  return distance < params_.meshResolution_;
+}
 #endif

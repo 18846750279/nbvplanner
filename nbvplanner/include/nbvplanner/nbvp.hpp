@@ -56,7 +56,8 @@ nbvInspection::nbvPlanner<stateVec>::nbvPlanner(const ros::NodeHandle& nh,
   pointcloud_sub_cam_down_ = nh_.subscribe(
       "pointcloud_throttled_down", 1,
       &nbvInspection::nbvPlanner<stateVec>::insertPointcloudWithTfCamDown, this);
-
+  rrt_target_ = nh_.subscribe("target_point", 1,
+                             &nbvInspection::nbvPlanner<stateVec>::target_pointCallback, this);
   if (!setParams()) {
     ROS_ERROR("Could not start the planner. Parameters missing!");
   }
@@ -152,14 +153,18 @@ void nbvInspection::nbvPlanner<stateVec>::odomCallback(
     const nav_msgs::Odometry& pose)
 {
   tree_->setStateFromOdometryMsg(pose);
+  //tree_->getcurrent(pose);
   // Planner is now ready to plan.
   ready_ = true;
+
 }
 
 template<typename stateVec>
 bool nbvInspection::nbvPlanner<stateVec>::plannerCallback(nbvplanner::nbvp_srv::Request& req,
                                                           nbvplanner::nbvp_srv::Response& res)
 {
+  std::cout<< "failed!!!" <<std::endl;
+
   ros::Time computationTime = ros::Time::now();
   // Check that planner is ready to compute path.
   if (!ros::ok()) {
@@ -187,7 +192,7 @@ bool nbvInspection::nbvPlanner<stateVec>::plannerCallback(nbvplanner::nbvp_srv::
   vector_t path;
   // Iterate the tree construction method.
   int loopCount = 0;
-  while ((!tree_->gainFound() || tree_->getCounter() < params_.initIterations_) && ros::ok()) {
+  while (!tree_->pathFound() && !tree_->goal_reached() && ros::ok()) {
     if (tree_->getCounter() > params_.cuttoffIterations_) {
       ROS_INFO("No gain found, shutting down");
       ros::shutdown();
@@ -444,4 +449,10 @@ void nbvInspection::nbvPlanner<stateVec>::evasionCallback(
   tree_->evade(segmentMsg);
 }
 
+template<typename stateVec>
+void nbvInspection::nbvPlanner<stateVec>::target_pointCallback(
+    const geometry_msgs::Pose& target_msg)
+{
+  tree_->gettarget( target_msg );
+}
 #endif // NBVP_HPP_

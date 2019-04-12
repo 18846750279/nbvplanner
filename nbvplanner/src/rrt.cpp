@@ -293,8 +293,17 @@ void nbvInspection::RrtTree::iterate(int iterations)
       + SQ(params_.minZ_ - params_.maxZ_));
   bool solutionFound = false;
   while (!solutionFound) {
-    for (int i = 0; i < 3; i++) {
-      newState[i] = 2.0 * radius * (((double) rand()) / ((double) RAND_MAX) - 0.5);
+    if ( ((double) rand()) / ((double) RAND_MAX) > 0.5 )
+    {
+      newState[0] = target_point_.position.x;
+      newState[1] = target_point_.position.y;
+      newState[2] = target_point_.position.z;
+    }
+    else
+    {
+      for (int i = 0; i < 3; i++) {
+        newState[i] = 2.0 * radius * (((double) rand()) / ((double) RAND_MAX) - 0.5);
+      }
     }
     if (SQ(newState[0]) + SQ(newState[1]) + SQ(newState[2]) > pow(radius, 2.0))
       continue;
@@ -351,18 +360,28 @@ void nbvInspection::RrtTree::iterate(int iterations)
     newNode->parent_ = newParent;
     newNode->distance_ = newParent->distance_ + direction.norm();
     newParent->children_.push_back(newNode);
-    newNode->gain_ = newParent->gain_
-        + gain(newNode->state_) * exp(-params_.degressiveCoeff_ * newNode->distance_);
+
+//    newNode->gain_ = newParent->gain_
+//        + gain(newNode->state_) * exp(-params_.degressiveCoeff_ * newNode->distance_);
+
+    //calculate gain according to distance to goal 20190412
+    double distance_to_goal = sqrt ( SQ(target_point_.position.x - newState[0]) +
+        SQ(target_point_.position.y - newState[1]) +SQ(target_point_.position.z - newState[2]));
+    newNode->gain_ = radius - distance_to_goal;
 
     kd_insert3(kdTree_, newState.x(), newState.y(), newState.z(), newNode);
 
     // Display new node
     publishNode(newNode);
     // Update best IG and node if applicable
-    if (newNode->gain_ > bestGain_) {
+    if( distance_to_goal < params_.meshResolution_)
+    {
+      path_found_ = true;
       bestGain_ = newNode->gain_;
       bestNode_ = newNode;
     }
+    else
+      path_found_ = false;
     counter_++;
   }
 }
@@ -445,19 +464,30 @@ void nbvInspection::RrtTree::initialize()
       newNode->parent_ = newParent;
       newNode->distance_ = newParent->distance_ + direction.norm();
       newParent->children_.push_back(newNode);
-      newNode->gain_ = newParent->gain_
-          + gain(newNode->state_) * exp(-params_.degressiveCoeff_ * newNode->distance_);
+//      newNode->gain_ = newParent->gain_
+//          + gain(newNode->state_) * exp(-params_.degressiveCoeff_ * newNode->distance_);
+
+      //calculate gain according to distance to goal 20190412
+      double radius = sqrt(
+          SQ(params_.minX_ - params_.maxX_) + SQ(params_.minY_ - params_.maxY_)
+          + SQ(params_.minZ_ - params_.maxZ_));
+      double distance_to_goal = sqrt ( SQ(target_point_.position.x - newState[0]) +
+          SQ(target_point_.position.y - newState[1]) +SQ(target_point_.position.z - newState[2]));
+      newNode->gain_ = radius - distance_to_goal;
 
       kd_insert3(kdTree_, newState.x(), newState.y(), newState.z(), newNode);
 
       // Display new node
       publishNode(newNode);
-
       // Update best IG and node if applicable
-      if (newNode->gain_ > bestGain_) {
+      if( distance_to_goal < params_.meshResolution_)
+      {
+        path_found_ = true;
         bestGain_ = newNode->gain_;
         bestNode_ = newNode;
       }
+      else
+        path_found_ = false;
       counter_++;
     }
   }
