@@ -358,7 +358,6 @@ void nbvInspection::RrtTree::iterate(int iterations)
 
     // Display new node
     publishNode(newNode);
-
     // Update best IG and node if applicable
     if (newNode->gain_ > bestGain_) {
       bestGain_ = newNode->gain_;
@@ -542,7 +541,15 @@ double nbvInspection::RrtTree::gain(StateVec state)
             if (val < SQRT2 * disc) {
               inThisFieldOfView = false;
               break;
-            }
+            }//20190410
+//            Eigen::Vector3d normal = Eigen::AngleAxisd(-M_PI * 15 / 180.0, Eigen::Vector3d::UnitZ())*Eigen::AngleAxisd(-state[3], Eigen::Vector3d::UnitZ())
+//                            * dir;
+//            double val = normal[2]/normal.norm();
+//            if (fabs(val) > sin(M_PI * 15 / 180.0)){
+//              inThisFieldOfView = false;
+//              break;
+//            }//20190411 lidar
+
           }
           if (inThisFieldOfView) {
             insideAFieldOfView = true;
@@ -586,6 +593,7 @@ double nbvInspection::RrtTree::gain(StateVec state)
   }
 // Scale with volume
   gain *= pow(disc, 3.0);
+
 // Check the gain added by inspectable surface
   if (mesh_) {
     tf::Transform transform;

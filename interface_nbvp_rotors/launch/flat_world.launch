@@ -1,0 +1,15 @@
+<launch>
+  <arg name="mav_name" default="firefly" />
+  <arg name="enable_logging" default="false" />
+  <arg name="enable_ground_truth" default="true" />
+  <arg name="log_file" default="$(arg mav_name)" />
+
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find interface_nbvp_rotors)/worlds/flat.world" />
+    <arg name="paused" value="true"/>
+    <arg name="gui" value="true"/>
+  </include>
+  
+  <node pkg="tf" type="static_transform_publisher" name="tf_53" args="0 0 0 0 0 0 world navigation 100" />
+  
+</launch>
