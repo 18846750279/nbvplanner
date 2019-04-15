@@ -45,12 +45,12 @@ nbvInspection::TreeBase<stateVec>::TreeBase()
   counter_ = 0;
   rootNode_ = NULL;
   path_found_ = false;
-  target_point_.position.x = 0;
-  target_point_.position.y = 0;
-  target_point_.position.z = 0;
+  target_point_.position.x = -3;
+  target_point_.position.y = 3;
+  target_point_.position.z = 1;
   current_point_.position.x = 0;
-  current_point_.position.x = 0;
-  current_point_.position.x = 0;
+  current_point_.position.y = 0;
+  current_point_.position.z = 1;
 }
 
 template<typename stateVec>
@@ -141,7 +141,7 @@ void nbvInspection::TreeBase<stateVec>::gettarget(const geometry_msgs::Pose& tar
 }
 
 template<typename stateVec>
-void nbvInspection::TreeBase<stateVec>::getcurrent(const nav_msgs::Odometry& current)
+void nbvInspection::TreeBase<stateVec>::getcurrent(const geometry_msgs::PoseWithCovarianceStamped& current)
 {
   current_point_.position.x = current.pose.pose.position.x;
   current_point_.position.y = current.pose.pose.position.y;
@@ -160,6 +160,6 @@ bool nbvInspection::TreeBase<stateVec>::goal_reached()
   double distance = sqrt( SQ(target_point_.position.x - current_point_.position.x) +
                           SQ(target_point_.position.y - current_point_.position.y)+
                           SQ(target_point_.position.z - current_point_.position.z));
-  return distance < params_.meshResolution_;
+  return distance < 0.6;
 }
 #endif

@@ -127,7 +127,7 @@ class TreeBase
   bool gainFound();
   void insertPointcloudWithTf(const sensor_msgs::PointCloud2::ConstPtr& pointcloud);
   void gettarget(const geometry_msgs::Pose& target);
-  void getcurrent(const nav_msgs::Odometry& current);
+  void getcurrent(const geometry_msgs::PoseWithCovarianceStamped& current);
   bool pathFound();
   bool goal_reached();
 };

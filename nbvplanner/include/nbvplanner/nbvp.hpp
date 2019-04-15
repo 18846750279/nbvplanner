@@ -144,6 +144,7 @@ void nbvInspection::nbvPlanner<stateVec>::posCallback(
     const geometry_msgs::PoseWithCovarianceStamped& pose)
 {
   tree_->setStateFromPoseMsg(pose);
+  tree_->getcurrent(pose);
   // Planner is now ready to plan.
   ready_ = true;
 }
@@ -153,7 +154,6 @@ void nbvInspection::nbvPlanner<stateVec>::odomCallback(
     const nav_msgs::Odometry& pose)
 {
   tree_->setStateFromOdometryMsg(pose);
-  //tree_->getcurrent(pose);
   // Planner is now ready to plan.
   ready_ = true;
 
@@ -163,8 +163,6 @@ template<typename stateVec>
 bool nbvInspection::nbvPlanner<stateVec>::plannerCallback(nbvplanner::nbvp_srv::Request& req,
                                                           nbvplanner::nbvp_srv::Response& res)
 {
-  std::cout<< "failed!!!" <<std::endl;
-
   ros::Time computationTime = ros::Time::now();
   // Check that planner is ready to compute path.
   if (!ros::ok()) {
@@ -190,26 +188,35 @@ bool nbvInspection::nbvPlanner<stateVec>::plannerCallback(nbvplanner::nbvp_srv::
   tree_->clear();
   tree_->initialize();
   vector_t path;
+
   // Iterate the tree construction method.
   int loopCount = 0;
-  while (!tree_->pathFound() && !tree_->goal_reached() && ros::ok()) {
-    if (tree_->getCounter() > params_.cuttoffIterations_) {
-      ROS_INFO("No gain found, shutting down");
-      ros::shutdown();
-      return true;
-    }
+  while (!tree_->goal_reached() && !tree_->pathFound() && tree_->getCounter() < params_.initIterations_ && ros::ok()) {
+//    if (tree_->getCounter() > params_.cuttoffIterations_) {
+//      ROS_INFO("No gain found, shutting down");
+//      ros::shutdown();
+//      return true;
+//    }
     if (loopCount > 1000 * (tree_->getCounter() + 1)) {
       ROS_INFO_THROTTLE(1, "Exceeding maximum failed iterations, return to previous point!");
       res.path = tree_->getPathBackToPrevious(req.header.frame_id);
       return true;
     }
+    //ros::Duration(0.1).sleep();
     tree_->iterate(1);
     loopCount++;
   }
+  std::cout<<"goal reached"<<tree_->goal_reached()<<std::endl;
   // Extract the best edge.
-  res.path = tree_->getBestEdge(req.header.frame_id);
-
-  tree_->memorizeBestBranch();
+  if(tree_->goal_reached())
+  {
+    res.path.clear();
+  }
+  else
+  {
+    res.path = tree_->getBestEdge(req.header.frame_id);
+    tree_->memorizeBestBranch();
+  }
   // Publish path to block for other agents (multi agent only).
   multiagent_collision_check::Segment segment;
   segment.header.stamp = ros::Time::now();

@@ -7,15 +7,15 @@ int main(int argc, char **argv)
   ros::init(argc, argv, "target_test");
   ros::NodeHandle nh;
 
-  ros::Publisher chatter_pub = nh.advertise<geometry_msgs::Pose>("target_point", 10);
+  ros::Publisher chatter_pub = nh.advertise<geometry_msgs::Pose>("/firefly/target_point", 10);
 
   ros::Rate loop_rate(10);
   while (ros::ok())
   {
     geometry_msgs::Pose msg;
-    msg.position.x = 5;
-    msg.position.y = 5;
-    msg.position.z = 3;
+    msg.position.x = 20;
+    msg.position.y = -20;
+    msg.position.z = 1;
 
     msg.orientation.w = 1;
     msg.orientation.x = 0;

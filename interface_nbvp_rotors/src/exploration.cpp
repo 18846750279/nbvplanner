@@ -76,24 +76,39 @@ int main(int argc, char** argv)
   // Wait for 5 seconds to let the Gazebo GUI show up.
   ros::Duration(5.0).sleep();
 
+  nh.param<double>("wp_x", trajectory_point.position_W.x(), 0.0);
+  nh.param<double>("wp_y", trajectory_point.position_W.y(), 0.0);
+  nh.param<double>("wp_z", trajectory_point.position_W.z(), 1);
+  samples_array.header.seq = n_seq;
+  samples_array.header.stamp = ros::Time::now();
+  samples_array.points.clear();
+  n_seq++;
+  tf::Quaternion quat = tf::Quaternion(tf::Vector3(0.0, 0.0, 1.0), 0);
+  trajectory_point.setFromYaw(tf::getYaw(quat));
+  mav_msgs::msgMultiDofJointTrajectoryPointFromEigen(trajectory_point, &trajectory_point_msg);
+  samples_array.points.push_back(trajectory_point_msg);
+  trajectory_pub.publish(samples_array);
+
+  ros::Duration(5.0).sleep();
   // This is the initialization motion, necessary that the known free space allows the planning
   // of initial paths.
   ROS_INFO("Starting the planner: Performing initialization motion");
   for (double i = 0; i <= 1.0; i = i + 0.1) {
     nh.param<double>("wp_x", trajectory_point.position_W.x(), 0.0);
     nh.param<double>("wp_y", trajectory_point.position_W.y(), 0.0);
-    nh.param<double>("wp_z", trajectory_point.position_W.z(), 1.0);
+    nh.param<double>("wp_z", trajectory_point.position_W.z(), 1);
     samples_array.header.seq = n_seq;
     samples_array.header.stamp = ros::Time::now();
     samples_array.points.clear();
     n_seq++;
-    tf::Quaternion quat = tf::Quaternion(tf::Vector3(0.0, 0.0, 1.0), -M_PI * i);
+    tf::Quaternion quat = tf::Quaternion(tf::Vector3(0.0, 0.0, 1.0), -2*M_PI * i);
     trajectory_point.setFromYaw(tf::getYaw(quat));
     mav_msgs::msgMultiDofJointTrajectoryPointFromEigen(trajectory_point, &trajectory_point_msg);
     samples_array.points.push_back(trajectory_point_msg);
     trajectory_pub.publish(samples_array);
-    ros::Duration(1.0).sleep();
+    ros::Duration(2.0).sleep();
   }
+  ros::Duration(5.0).sleep();
   trajectory_point.position_W.x() -= 0.5;
   trajectory_point.position_W.y() -= 0.5;
   samples_array.header.seq = n_seq;
@@ -103,7 +118,7 @@ int main(int argc, char** argv)
   mav_msgs::msgMultiDofJointTrajectoryPointFromEigen(trajectory_point, &trajectory_point_msg);
   samples_array.points.push_back(trajectory_point_msg);
   trajectory_pub.publish(samples_array);
-  ros::Duration(1.0).sleep();
+  ros::Duration(2.0).sleep();
 
   // Start planning: The planner is called and the computed path sent to the controller.
   int iteration = 0;
@@ -118,6 +133,7 @@ int main(int argc, char** argv)
       if (planSrv.response.path.size() == 0) {
         ros::Duration(1.0).sleep();
       }
+      std::cout<< "planSrv path size=" <<planSrv.response.path.size()<<std::endl;
       for (int i = 0; i < planSrv.response.path.size(); i++) {
         samples_array.header.seq = n_seq;
         samples_array.header.stamp = ros::Time::now();
