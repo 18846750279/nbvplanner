@@ -105,6 +105,7 @@ class TreeBase
   geometry_msgs::Pose target_point_;
   geometry_msgs::Pose current_point_;
   bool path_found_;
+  bool gain_found_;
  public:
   TreeBase();
   TreeBase(mesh::StlMesh * mesh, volumetric_mapping::OctomapManager * manager);
@@ -129,6 +130,7 @@ class TreeBase
   void gettarget(const geometry_msgs::Pose& target);
   void getcurrent(const geometry_msgs::PoseWithCovarianceStamped& current);
   bool pathFound();
+  bool informationgainFound();
   bool goal_reached();
 };
 }

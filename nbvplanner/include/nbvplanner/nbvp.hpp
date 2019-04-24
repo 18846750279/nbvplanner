@@ -191,12 +191,17 @@ bool nbvInspection::nbvPlanner<stateVec>::plannerCallback(nbvplanner::nbvp_srv::
 
   // Iterate the tree construction method.
   int loopCount = 0;
-  while (!tree_->goal_reached() && !tree_->pathFound() && tree_->getCounter() < params_.initIterations_ && ros::ok()) {
+  while (!tree_->goal_reached() && !tree_->pathFound() && (tree_->getCounter() < params_.initIterations_||!tree_->informationgainFound()) && ros::ok()) {
 //    if (tree_->getCounter() > params_.cuttoffIterations_) {
 //      ROS_INFO("No gain found, shutting down");
 //      ros::shutdown();
 //      return true;
-//    }
+//    }informationgain
+    if (tree_->getCounter() > params_.cuttoffIterations_)
+    {
+      ROS_INFO("No gain found, break");
+      break;
+    }//informationgain+distance to goal
     if (loopCount > 1000 * (tree_->getCounter() + 1)) {
       ROS_INFO_THROTTLE(1, "Exceeding maximum failed iterations, return to previous point!");
       res.path = tree_->getPathBackToPrevious(req.header.frame_id);

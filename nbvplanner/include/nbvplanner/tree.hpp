@@ -155,6 +155,12 @@ bool nbvInspection::TreeBase<stateVec>::pathFound()
 }
 
 template<typename stateVec>
+bool nbvInspection::TreeBase<stateVec>::informationgainFound()
+{
+  return ( gain_found_ == true );
+}
+
+template<typename stateVec>
 bool nbvInspection::TreeBase<stateVec>::goal_reached()
 {
   double distance = sqrt( SQ(target_point_.position.x - current_point_.position.x) +

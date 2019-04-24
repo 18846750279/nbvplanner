@@ -364,18 +364,26 @@ void nbvInspection::RrtTree::iterate(int iterations)
     newNode->distance_ = newParent->distance_ + direction.norm();
     newParent->children_.push_back(newNode);
 
-//    newNode->gain_ = newParent->gain_
-//        + gain(newNode->state_) * exp(-params_.degressiveCoeff_ * newNode->distance_);
-
-    //calculate gain according to distance to goal 20190412
     double distance_to_goal = sqrt ( SQ(target_point_.position.x - newState[0]) +
-        SQ(target_point_.position.y - newState[1]) +SQ(target_point_.position.z - newState[2]));
-    newNode->gain_ = radius - distance_to_goal;
+        SQ(target_point_.position.y - newState[1])
+        +SQ(target_point_.position.z - newState[2]));
+
+    double delta_gain;
+    delta_gain = gain(newNode->state_) * exp(-params_.degressiveCoeff_ * newNode->distance_);
+    newNode->gain_ = newParent->gain_
+        + delta_gain
+        + ((distance_to_goal < 0.4))?10*(radius - distance_to_goal):(radius - distance_to_goal);
+
     kd_insert3(kdTree_, newState.x(), newState.y(), newState.z(), newNode);
     std::cout<<"rand== "<<rand_out<<std::endl;
     // Display new node
     publishNode(newNode);
-    // Update best IG and node if applicable
+
+    if(delta_gain > 0)
+      gain_found_ = true;
+    else
+      gain_found_ = false;
+
     if( distance_to_goal < 0.4)
     {
       path_found_ = true;
@@ -383,6 +391,7 @@ void nbvInspection::RrtTree::iterate(int iterations)
     else
       path_found_ = false;
 
+    // Update best IG and node if applicable
     if (newNode->gain_ > bestGain_) {
       bestGain_ = newNode->gain_;
       bestNode_ = newNode;
