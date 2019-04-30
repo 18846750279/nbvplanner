@@ -369,33 +369,33 @@ void nbvInspection::RrtTree::iterate(int iterations)
         +SQ(target_point_.position.z - newState[2]));
 
     double delta_gain;
-    delta_gain = gain(newNode->state_) * exp(-params_.degressiveCoeff_ * newNode->distance_);
-    newNode->gain_ = newParent->gain_
-        + delta_gain
-        + ((distance_to_goal < 0.4))?10*(radius - distance_to_goal):(radius - distance_to_goal);
+    delta_gain = 3*gain(newNode->state_) ;//* exp(-params_.degressiveCoeff_ * newNode->distance_);
+    newNode->gain_ = /*newParent->gain_*/
+        delta_gain
+        + ((distance_to_goal <= 0.4)?(10*(radius - distance_to_goal)):(radius - distance_to_goal));
 
+    //newNode->gain_ = radius - distance_to_goal;
     kd_insert3(kdTree_, newState.x(), newState.y(), newState.z(), newNode);
-    std::cout<<"rand== "<<rand_out<<std::endl;
+    //std::cout<<"rand== "<<rand_out<<std::endl;
+    //std::cout<<"delta_gain== "<<delta_gain<<std::endl;
+    //std::cout<<"gain== "<<newNode->gain_<<std::endl;
     // Display new node
     publishNode(newNode);
 
     if(delta_gain > 0)
       gain_found_ = true;
-    else
-      gain_found_ = false;
 
-    if( distance_to_goal < 0.4)
+    if( distance_to_goal <= 0.4)
     {
       path_found_ = true;
     }
-    else
-      path_found_ = false;
 
     // Update best IG and node if applicable
     if (newNode->gain_ > bestGain_) {
       bestGain_ = newNode->gain_;
       bestNode_ = newNode;
     }
+    //std::cout<<"best_gain== "<<bestGain_<<std::endl;
     counter_++;
   }
 }
@@ -483,20 +483,28 @@ void nbvInspection::RrtTree::initialize()
           + SQ(params_.minZ_ - params_.maxZ_));
       double distance_to_goal = sqrt ( SQ(target_point_.position.x - newState[0]) +
           SQ(target_point_.position.y - newState[1]) +SQ(target_point_.position.z - newState[2]));
-      newNode->gain_ = radius - distance_to_goal;
+
+      double delta_gain;
+      delta_gain = 3*gain(newNode->state_) ;//* exp(-params_.degressiveCoeff_ * newNode->distance_);
+      newNode->gain_ = /*newParent->gain_*/
+           delta_gain
+          + ((distance_to_goal < 0.4)?(10*(radius - distance_to_goal)):(radius - distance_to_goal));
 
       kd_insert3(kdTree_, newState.x(), newState.y(), newState.z(), newNode);
 
+      //std::cout<<"!!!initialize gain== "<<newNode->gain_<<std::endl;
+
       // Display new node
-      publishNode(newNode);
-      // Update best IG and node if applicable
+      publishNode(newNode);      
+//      if(delta_gain > 0)
+//        gain_found_ = true;
+
       if( distance_to_goal < 0.4)
       {
         path_found_ = true;
       }
-      else
-        path_found_ = false;
 
+      // Update best IG and node if applicable
       if (newNode->gain_ > bestGain_) {
         bestGain_ = newNode->gain_;
         bestNode_ = newNode;
@@ -684,6 +692,7 @@ void nbvInspection::RrtTree::clear()
   bestGain_ = params_.zero_gain_;
   bestNode_ = NULL;
   path_found_ = false;
+  gain_found_ = false;
   kd_free(kdTree_);
 }
 

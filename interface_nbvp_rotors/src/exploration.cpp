@@ -31,6 +31,7 @@
 #include <mav_msgs/conversions.h>
 #include <mav_msgs/default_topics.h>
 #include <nbvplanner/nbvp_srv.h>
+#include <volumetric_msgs/SaveMap.h>
 
 int main(int argc, char** argv)
 {
@@ -93,7 +94,7 @@ int main(int argc, char** argv)
   // This is the initialization motion, necessary that the known free space allows the planning
   // of initial paths.
   ROS_INFO("Starting the planner: Performing initialization motion");
-  for (double i = 0; i <= 1.0; i = i + 0.1) {
+  /*for (double i = 0; i <= 1.0; i = i + 0.1) {
     nh.param<double>("wp_x", trajectory_point.position_W.x(), 0.0);
     nh.param<double>("wp_y", trajectory_point.position_W.y(), 0.0);
     nh.param<double>("wp_z", trajectory_point.position_W.z(), 1);
@@ -107,7 +108,7 @@ int main(int argc, char** argv)
     samples_array.points.push_back(trajectory_point_msg);
     trajectory_pub.publish(samples_array);
     ros::Duration(2.0).sleep();
-  }
+  }*/
   ros::Duration(5.0).sleep();
   trajectory_point.position_W.x() -= 0.5;
   trajectory_point.position_W.y() -= 0.5;

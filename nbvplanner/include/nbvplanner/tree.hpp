@@ -166,6 +166,6 @@ bool nbvInspection::TreeBase<stateVec>::goal_reached()
   double distance = sqrt( SQ(target_point_.position.x - current_point_.position.x) +
                           SQ(target_point_.position.y - current_point_.position.y)+
                           SQ(target_point_.position.z - current_point_.position.z));
-  return distance < 0.6;
+  return distance <= 0.6;
 }
 #endif

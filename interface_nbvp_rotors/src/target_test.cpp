@@ -13,9 +13,9 @@ int main(int argc, char **argv)
   while (ros::ok())
   {
     geometry_msgs::Pose msg;
-    msg.position.x = 3;
-    msg.position.y = -4;
-    msg.position.z = 1;
+    msg.position.x = 12;
+    msg.position.y = -12;
+    msg.position.z = 4;
 
     msg.orientation.w = 1;
     msg.orientation.x = 0;

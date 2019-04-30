@@ -29,6 +29,7 @@
 #include <nbvplanner/mesh_structure.h>
 #include <nbvplanner/tree.hpp>
 #include <nbvplanner/rrt.h>
+#include <volumetric_msgs/SaveMap.h>
 
 #define SQ(x) ((x)*(x))
 #define SQRT2 0.70711
@@ -59,7 +60,9 @@ class nbvPlanner
   mesh::StlMesh * mesh_;
   volumetric_mapping::OctomapManager * manager_;
 
+  std::string pcl_file_path_;
   bool ready_;
+  bool save_point_finished_;
 
  public:
   typedef std::vector<stateVec> vector_t;

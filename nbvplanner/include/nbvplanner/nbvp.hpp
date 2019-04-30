@@ -126,6 +126,16 @@ nbvInspection::nbvPlanner<stateVec>::nbvPlanner(const ros::NodeHandle& nh,
                                tree_);
   // Not yet ready. Needs a position message first.
   ready_ = false;
+  save_point_finished_ = false;
+
+  time_t rawtime;
+  struct tm * ptm;
+  time(&rawtime);
+  ptm = gmtime(&rawtime);
+  pcl_file_path_ = ros::package::getPath("nbvplanner") + "/pcl_data/"
+      + std::to_string(ptm->tm_year + 1900) + "_" + std::to_string(ptm->tm_mon + 1) + "_"
+      + std::to_string(ptm->tm_mday) + "_" + std::to_string(ptm->tm_hour) + "_"
+      + std::to_string(ptm->tm_min) + "_" + std::to_string(ptm->tm_sec)+".pcd";
 }
 
 template<typename stateVec>
@@ -212,15 +222,23 @@ bool nbvInspection::nbvPlanner<stateVec>::plannerCallback(nbvplanner::nbvp_srv::
     loopCount++;
   }
   std::cout<<"goal reached"<<tree_->goal_reached()<<std::endl;
-  // Extract the best edge.
   if(tree_->goal_reached())
   {
     res.path.clear();
+    if(!save_point_finished_)
+    {
+      pcl::PointCloud<pcl::PointXYZ> point_cloud;
+      manager_->getOccupiedPointCloud(&point_cloud);
+      pcl::io::savePCDFileBinary(pcl_file_path_, point_cloud);
+      save_point_finished_ = true;
+    }
   }
   else
   {
+    // Extract the best edge.
     res.path = tree_->getBestEdge(req.header.frame_id);
     tree_->memorizeBestBranch();
+    save_point_finished_ = false;
   }
   // Publish path to block for other agents (multi agent only).
   multiagent_collision_check::Segment segment;
