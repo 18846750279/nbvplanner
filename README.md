@@ -1,3 +1,17 @@
+# This version is modified by Zhu Hongbiao based on the ethz-asl/nbvplanner
+
+In this version, I replaced the stereo camera with a velodyne-16. Then the function of the whole package is now to arrive the target place in an unknown environment instead to explore the whole environment. This package is also compatible with the lidar-odometry derived from lego-loam(https://github.com/18846750279/LeGO-LOAM) which is forked from RobustFieldAutonomyLab/LeGO-LOAM. But this function is in the former version of this package. If you want to use it, follow the steps below:
+cd nbvplanner
+```sh
+git log
+git reset --hard 8927cb
+cd rotors
+git log
+git reset --hard a023a27
+```
+Then you can realize autonomous navigation with nbvp and lego_loam without relying groundtruth. The following is the original description of nbvplanner.
+
+
 # Receding Horizon Next Best View Planning
 
 The next best view planner is a real-time capable exploration path planner. From the current pose it expands a tree to find a next pose that gives a high exploration gain. This gain reflects the exploration of space that is not yet (sufficiently) known. As the vehicle proceeds on the path, the tree is recomputed, taking into account the new information from the sensor.
@@ -7,15 +21,6 @@ This README gives a short overview. For more information refer to the [wiki](htt
 # Planner installation and execution
 
 To run the current version, compile the package nbvplanner. To get it navigate to the source folder of your ros workspace:
-
-```sh
-git clone https://github.com/ethz-asl/nbvplanner.git
-cd nbvplanner
-git submodule init --
-git submodule sync --recursive
-git submodule update --recursive
-cd ..
-```
 
 Moreover, make sure you have all the necessary libraries:
 ```sh
@@ -30,7 +35,7 @@ For a simulation demo launch
 roslaunch interface_nbvp_rotors flat_exploration.launch
 ```
 
-Tested under ROS Indigo and Jade.
+Tested under ROS Indigo, Jade and Kinetic.
 
 Further instructions for the visualization of the exploration progress, as well as more demo scenarios and descriptions of the parameters can be found in the [wiki](https://github.com/ethz-asl/nbvplanner/wiki).
 
@@ -47,12 +52,4 @@ If you use this software in a scientific publication, please cite the following 
 }
 ```
 
-# Credits
 
-This algorithm was developed by [Andreas Bircher](mailto:bircher@gmx.ch) with the help and support of the members of the [Autonomous Systems Lab](http://www.asl.ethz.ch). The work was supported by the European Commission-funded project [AEROWORKS](http://www.aeroworks2020.eu/).
-
-# Contact
-
-You can contact us for any question or remark:
-* [Andreas Bircher](mailto:bircher@gmx.ch)
-* [Kostas Alexis](mailto:konstantinos.alexis@mavt.ethz.ch)
